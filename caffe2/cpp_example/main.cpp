@@ -6,10 +6,16 @@ CAFFE2_DEFINE_string(file, "res/test.jpg", "input image file");
 CAFFE2_DEFINE_string(classes, "res/imagenet_classes.txt", "the classes file.");
 CAFFE2_DEFINE_int(size, 227, "the image file.")
 
+#ifdef __GPU__
+typedef		TensorCUDA	tensor_t;
+#else
+typedef		TensorCPU	tensor_t;
+#endif
+
 namespace caffe2 {
 
     void print(const Blob *blob, const std::string &name) {
-        const auto tensor = blob->Get<TensorCUDA>().Clone();
+        const auto tensor = blob->Get<tensor_t>().Clone();
         const auto &data = tensor.data<float>();
         std::cout << name << "(" << tensor.dims() << "):" << std::vector<float>(data, data + tensor.size())
                   << std::endl;
@@ -54,9 +60,10 @@ namespace caffe2 {
         std::cout << "init net ..." << std::endl;
 
         //try gpu
+#ifdef __GPU__
         auto bflag = HasCudaGPU();
         bflag = HasCudaRuntime();
-#ifdef __GPU__
+
         DeviceOption option;
         option.set_device_type(CUDA);
         new CUDAContext(option);
