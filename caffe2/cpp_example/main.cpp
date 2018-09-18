@@ -7,9 +7,9 @@ CAFFE2_DEFINE_string(classes, "res/imagenet_classes.txt", "the classes file.");
 CAFFE2_DEFINE_int(size, 227, "the image file.")
 
 #ifdef __GPU__
-typedef		TensorCUDA	tensor_t;
+typedef		caffe2::TensorCUDA	tensor_t;
 #else
-typedef		TensorCPU	tensor_t;
+typedef		caffe2::TensorCPU	tensor_t;
 #endif
 
 namespace caffe2 {
