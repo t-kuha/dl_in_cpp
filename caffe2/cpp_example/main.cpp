@@ -80,11 +80,7 @@ namespace caffe2 {
 #endif
         Workspace workspace("tmp");
         CAFFE_ENFORCE(workspace.RunNetOnce(init_net));
-#ifdef __GPU__
-        auto input = workspace.CreateBlob("data")->GetMutable<TensorCUDA>();
-#else
-        auto input = workspace.CreateBlob("data")->GetMutable<TensorCPU>();
-#endif
+        auto input = workspace.CreateBlob("data")->GetMutable<tensor_t>();
 
         std::cout << "load classes..." << std::endl;
 
