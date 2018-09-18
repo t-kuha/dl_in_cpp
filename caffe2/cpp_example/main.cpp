@@ -1,4 +1,4 @@
-#include <utils.h>
+#include "utils.h"
 
 CAFFE2_DEFINE_string(init_net, "res/squeezenet_init_net.pb", "the given path to the init protobuffer.")
 CAFFE2_DEFINE_string(predict_net, "res/squeezenet_predict_net.pb", "predict protobuffer");
