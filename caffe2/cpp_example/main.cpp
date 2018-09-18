@@ -97,20 +97,21 @@ namespace caffe2 {
 
         std::cout << "init net done ..." << std::endl;
 
-        std::cout << "init camera ..." << std::endl;
-        cv::VideoCapture cap("res/fruits.mp4");
-        /*if(!cap.isOpened()){
-            std::cout<<"camera open failed..."<<std::endl;
-            return;
-        }*/
-        std::cout << "camera done..." << std::endl;
+//        std::cout << "init camera ..." << std::endl;
+//        cv::VideoCapture cap("res/fruits.mp4");
+//        if(!cap.isOpened()){
+//            std::cout<<"camera open failed..."<<std::endl;
+//            return;
+//        }
+//        std::cout << "camera done..." << std::endl;
         cv::Mat o_image;
-        auto &image = o_image;//= cv::imread(FLAGS_file);
-        for (int i = 0; i < 10000; i++) {
-            auto cap_result = cap.read(image);
-            auto show_image = image.clone();
-            std::cout << "cap result is:" << cap_result << std::endl;
-            std::cout << "image size:" << image.size() << std::endl;
+        o_image = cv::imread(FLAGS_file);
+        auto &image = o_image;
+//        for (int i = 0; i < 10000; i++) {
+//            auto cap_result = cap.read(image);
+//            auto show_image = image.clone();
+//            std::cout << "cap result is:" << cap_result << std::endl;
+//            std::cout << "image size:" << image.size() << std::endl;
 
             TensorCPU tensor_host = prepareMatImgData(image);
             input->CopyFrom(tensor_host);
@@ -144,9 +145,9 @@ namespace caffe2 {
             for (auto pair:pairs) {
                 std::cout << " " << pair.first << "% " << classes[pair.second] << std::endl;
             }
-            cv::imshow("test", show_image);
-            cv::waitKey(1);
-        }
+//            cv::imshow("test", show_image);
+//            cv::waitKey(1);
+//        }
     }
 }//namespace caffe2_first
 
