@@ -107,7 +107,7 @@ char *fgetl(FILE *fp)
 {
 	if (feof(fp)) return 0;
 	size_t size = 512;
-	char *line = malloc(size * sizeof(char));
+	char *line = (char*) malloc(size * sizeof(char));
 	if (!fgets(line, size, fp)) {
 		free(line);
 		return 0;
@@ -118,7 +118,7 @@ char *fgetl(FILE *fp)
 	while ((line[curr - 1] != '\n') && !feof(fp)) {
 		if (curr == size - 1) {
 			size *= 2;
-			line = realloc(line, size * sizeof(char));
+			line = (char*) realloc(line, size * sizeof(char));
 			if (!line) {
 				printf("%ld\n", (int long)size);
 				malloc_error();
@@ -144,7 +144,7 @@ int *read_map(char *filename)
 	if (!file) file_error(filename);
 	while ((str = fgetl(file))) {
 		++n;
-		map = realloc(map, n * sizeof(int));
+		map = (int*) realloc(map, n * sizeof(int));
 		map[n - 1] = atoi(str);
 	}
 	return map;
@@ -238,19 +238,19 @@ void strip(char *s)
 // utils.c
 void list_insert(list *l, void *val)
 {
-	node *new = malloc(sizeof(node));
-	new->val = val;
-	new->next = 0;
+	node *new_ = (node*) malloc(sizeof(node));
+	new_->val = val;
+	new_->next = 0;
 
 	if (!l->back) {
-		l->front = new;
-		new->prev = 0;
+		l->front = new_;
+		new_->prev = 0;
 	}
 	else {
-		l->back->next = new;
-		new->prev = l->back;
+		l->back->next = new_;
+		new_->prev = l->back;
 	}
-	l->back = new;
+	l->back = new_;
 	++l->size;
 }
 
@@ -392,42 +392,42 @@ tree *read_tree(char *filename)
 	int groups = 0;
 	int n = 0;
 	while ((line = fgetl(fp)) != 0) {
-		char *id = calloc(256, sizeof(char));
+		char *id = (char*) calloc(256, sizeof(char));
 		int parent = -1;
 		sscanf(line, "%s %d", id, &parent);
-		t.parent = realloc(t.parent, (n + 1) * sizeof(int));
+		t.parent = (int*) realloc(t.parent, (n + 1) * sizeof(int));
 		t.parent[n] = parent;
 
-		t.name = realloc(t.name, (n + 1) * sizeof(char *));
+		t.name = (char**) realloc(t.name, (n + 1) * sizeof(char *));
 		t.name[n] = id;
 		if (parent != last_parent) {
 			++groups;
-			t.group_offset = realloc(t.group_offset, groups * sizeof(int));
+			t.group_offset = (int*) realloc(t.group_offset, groups * sizeof(int));
 			t.group_offset[groups - 1] = n - group_size;
-			t.group_size = realloc(t.group_size, groups * sizeof(int));
+			t.group_size = (int*) realloc(t.group_size, groups * sizeof(int));
 			t.group_size[groups - 1] = group_size;
 			group_size = 0;
 			last_parent = parent;
 		}
-		t.group = realloc(t.group, (n + 1) * sizeof(int));
+		t.group = (int*) realloc(t.group, (n + 1) * sizeof(int));
 		t.group[n] = groups;
 		++n;
 		++group_size;
 	}
 	++groups;
-	t.group_offset = realloc(t.group_offset, groups * sizeof(int));
+	t.group_offset = (int*) realloc(t.group_offset, groups * sizeof(int));
 	t.group_offset[groups - 1] = n - group_size;
-	t.group_size = realloc(t.group_size, groups * sizeof(int));
+	t.group_size = (int*) realloc(t.group_size, groups * sizeof(int));
 	t.group_size[groups - 1] = group_size;
 	t.n = n;
 	t.groups = groups;
-	t.leaf = calloc(n, sizeof(int));
+	t.leaf = (int*) calloc(n, sizeof(int));
 	int i;
 	for (i = 0; i < n; ++i) t.leaf[i] = 1;
 	for (i = 0; i < n; ++i) if (t.parent[i] >= 0) t.leaf[t.parent[i]] = 0;
 
 	fclose(fp);
-	tree *tree_ptr = calloc(1, sizeof(tree));
+	tree *tree_ptr = (tree*) calloc(1, sizeof(tree));
 	*tree_ptr = t;
 	//error(0);
 	return tree_ptr;
@@ -440,7 +440,7 @@ tree *read_tree(char *filename)
 // list.c
 list *make_list()
 {
-	list *l = malloc(sizeof(list));
+	list *l = (list*) malloc(sizeof(list));
 	l->size = 0;
 	l->front = 0;
 	l->back = 0;
@@ -466,7 +466,7 @@ list *get_paths(char *filename)
 // list.c
 void **list_to_array(list *l)
 {
-    void **a = calloc(l->size, sizeof(void*));
+    void **a = (void**) calloc(l->size, sizeof(void*));
     int count = 0;
     node *n = l->front;
     while(n){
@@ -531,8 +531,8 @@ network make_network(int n)
 {
     network net = {0};
     net.n = n;
-    net.layers = calloc(net.n, sizeof(layer));
-    net.seen = calloc(1, sizeof(uint64_t));
+    net.layers = (layer*) calloc(net.n, sizeof(layer));
+    net.seen = (uint64_t*) calloc(1, sizeof(uint64_t));
     #ifdef GPU
     net.input_gpu = calloc(1, sizeof(float *));
     net.truth_gpu = calloc(1, sizeof(float *));
@@ -708,14 +708,15 @@ softmax_layer make_softmax_layer(int batch, int inputs, int groups)
 {
 	assert(inputs%groups == 0);
 	fprintf(stderr, "softmax                                        %4d\n", inputs);
-	softmax_layer l = { 0 };
+	softmax_layer l;
+	memset(&l, 0, sizeof(softmax_layer));
 	l.type = SOFTMAX;
 	l.batch = batch;
 	l.groups = groups;
 	l.inputs = inputs;
 	l.outputs = inputs;
-	l.output = calloc(inputs*batch, sizeof(float));
-	l.delta = calloc(inputs*batch, sizeof(float));
+	l.output = (float*) calloc(inputs*batch, sizeof(float));
+	l.delta = (float*) calloc(inputs*batch, sizeof(float));
 
 	// commented only for this custom version of Yolo v2
 	//l.forward = forward_softmax_layer;
@@ -736,7 +737,8 @@ softmax_layer make_softmax_layer(int batch, int inputs, int groups)
 // reorg_layer.c
 layer make_reorg_layer(int batch, int w, int h, int c, int stride, int reverse)
 {
-	layer l = { 0 };
+	layer l;
+	memset(&l, 0, sizeof(layer));
 	l.type = REORG;
 	l.batch = batch;
 	l.stride = stride;
@@ -758,8 +760,8 @@ layer make_reorg_layer(int batch, int w, int h, int c, int stride, int reverse)
 	l.outputs = l.out_h * l.out_w * l.out_c;
 	l.inputs = h*w*c;
 	int output_size = l.out_h * l.out_w * l.out_c * batch;
-	l.output = calloc(output_size, sizeof(float));
-	l.delta = calloc(output_size, sizeof(float));
+	l.output = (float*) calloc(output_size, sizeof(float));
+	l.delta = (float*) calloc(output_size, sizeof(float));
 
 	// commented only for this custom version of Yolo v2
 	//l.forward = forward_reorg_layer;
@@ -781,7 +783,8 @@ layer make_reorg_layer(int batch, int w, int h, int c, int stride, int reverse)
 route_layer make_route_layer(int batch, int n, int *input_layers, int *input_sizes)
 {
 	fprintf(stderr, "route ");
-	route_layer l = { 0 };
+	route_layer l;
+	memset(&l, 0, sizeof(route_layer));
 	l.type = ROUTE;
 	l.batch = batch;
 	l.n = n;
@@ -796,8 +799,8 @@ route_layer make_route_layer(int batch, int n, int *input_layers, int *input_siz
 	fprintf(stderr, "\n");
 	l.outputs = outputs;
 	l.inputs = outputs;
-	l.delta = calloc(outputs*batch, sizeof(float));
-	l.output = calloc(outputs*batch, sizeof(float));;
+	l.delta = (float*) calloc(outputs*batch, sizeof(float));
+	l.output = (float*) calloc(outputs*batch, sizeof(float));;
 
 	// commented only for this custom version of Yolo v2
 	//l.forward = forward_route_layer;
@@ -818,7 +821,8 @@ route_layer make_route_layer(int batch, int n, int *input_layers, int *input_siz
 //  region_layer.c
 region_layer make_region_layer(int batch, int w, int h, int n, int classes, int coords)
 {
-	region_layer l = { 0 };
+	region_layer l;
+	memset(&l, 0, sizeof(region_layer));
 	l.type = REGION;
 
 	l.n = n;
@@ -827,14 +831,14 @@ region_layer make_region_layer(int batch, int w, int h, int n, int classes, int 
 	l.w = w;
 	l.classes = classes;
 	l.coords = coords;
-	l.cost = calloc(1, sizeof(float));
-	l.biases = calloc(n * 2, sizeof(float));
-	l.bias_updates = calloc(n * 2, sizeof(float));
+	l.cost = (float*) calloc(1, sizeof(float));
+	l.biases = (float*) calloc(n * 2, sizeof(float));
+	l.bias_updates = (float*) calloc(n * 2, sizeof(float));
 	l.outputs = h*w*n*(classes + coords + 1);
 	l.inputs = l.outputs;
 	l.truths = 30 * (5);
-	l.delta = calloc(batch*l.outputs, sizeof(float));
-	l.output = calloc(batch*l.outputs, sizeof(float));
+	l.delta = (float*) calloc(batch*l.outputs, sizeof(float));
+	l.output = (float*) calloc(batch*l.outputs, sizeof(float));
 	int i;
 	for (i = 0; i < n * 2; ++i) {
 		l.biases[i] = .5;
@@ -863,7 +867,8 @@ region_layer make_region_layer(int batch, int w, int h, int n, int classes, int 
 // maxpool_layer.c
 maxpool_layer make_maxpool_layer(int batch, int h, int w, int c, int size, int stride, int padding)
 {
-	maxpool_layer l = { 0 };
+	maxpool_layer l;
+	memset(&l, 0, sizeof(maxpool_layer));
 	l.type = MAXPOOL;
 	l.batch = batch;
 	l.h = h;
@@ -878,9 +883,9 @@ maxpool_layer make_maxpool_layer(int batch, int h, int w, int c, int size, int s
 	l.size = size;
 	l.stride = stride;
 	int output_size = l.out_h * l.out_w * l.out_c * batch;
-	l.indexes = calloc(output_size, sizeof(int));
-	l.output = calloc(output_size, sizeof(float));
-	l.delta = calloc(output_size, sizeof(float));
+	l.indexes = (int*) calloc(output_size, sizeof(int));
+	l.output = (float*) calloc(output_size, sizeof(float));
+	l.delta = (float*) calloc(output_size, sizeof(float));
 	// commented only for this custom version of Yolo v2
 	//l.forward = forward_maxpool_layer;
 	//l.backward = backward_maxpool_layer;
@@ -966,7 +971,8 @@ int convolutional_out_width(convolutional_layer l)
 convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int n, int size, int stride, int padding, ACTIVATION activation, int batch_normalize, int binary, int xnor, int adam)
 {
 	int i;
-	convolutional_layer l = { 0 };
+	convolutional_layer l;
+	memset(&l, 0, sizeof(convolutional_layer));
 	l.type = CONVOLUTIONAL;
 
 	l.h = h;
@@ -981,11 +987,11 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
 	l.pad = padding;
 	l.batch_normalize = batch_normalize;
 
-	l.weights = calloc(c*n*size*size, sizeof(float));
-	l.weight_updates = calloc(c*n*size*size, sizeof(float));
+	l.weights = (float*) calloc(c*n*size*size, sizeof(float));
+	l.weight_updates = (float*) calloc(c*n*size*size, sizeof(float));
 
-	l.biases = calloc(n, sizeof(float));
-	l.bias_updates = calloc(n, sizeof(float));
+	l.biases = (float*) calloc(n, sizeof(float));
+	l.bias_updates = (float*) calloc(n, sizeof(float));
 
 	// float scale = 1./sqrt(size*size*c);
 	float scale = sqrt(2. / (size*size*c));
@@ -998,45 +1004,45 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
 	l.outputs = l.out_h * l.out_w * l.out_c;
 	l.inputs = l.w * l.h * l.c;
 
-	l.output = calloc(l.batch*l.outputs, sizeof(float));
-	l.delta = calloc(l.batch*l.outputs, sizeof(float));
+	l.output = (float*) calloc(l.batch*l.outputs, sizeof(float));
+	l.delta = (float*) calloc(l.batch*l.outputs, sizeof(float));
 
 	// commented only for this custom version of Yolo v2
 	///l.forward = forward_convolutional_layer;
 	///l.backward = backward_convolutional_layer;
 	///l.update = update_convolutional_layer;
 	if (binary) {
-		l.binary_weights = calloc(c*n*size*size, sizeof(float));
-		l.cweights = calloc(c*n*size*size, sizeof(char));
-		l.scales = calloc(n, sizeof(float));
+		l.binary_weights = (float*) calloc(c*n*size*size, sizeof(float));
+		l.cweights = (char*) calloc(c*n*size*size, sizeof(char));
+		l.scales = (float*) calloc(n, sizeof(float));
 	}
 	if (xnor) {
-		l.binary_weights = calloc(c*n*size*size, sizeof(float));
-		l.binary_input = calloc(l.inputs*l.batch, sizeof(float));
+		l.binary_weights = (float*) calloc(c*n*size*size, sizeof(float));
+		l.binary_input = (float*) calloc(l.inputs*l.batch, sizeof(float));
 	}
 
 	if (batch_normalize) {
-		l.scales = calloc(n, sizeof(float));
-		l.scale_updates = calloc(n, sizeof(float));
+		l.scales = (float*) calloc(n, sizeof(float));
+		l.scale_updates = (float*) calloc(n, sizeof(float));
 		for (i = 0; i < n; ++i) {
 			l.scales[i] = 1;
 		}
 
-		l.mean = calloc(n, sizeof(float));
-		l.variance = calloc(n, sizeof(float));
+		l.mean = (float*) calloc(n, sizeof(float));
+		l.variance = (float*) calloc(n, sizeof(float));
 
-		l.mean_delta = calloc(n, sizeof(float));
-		l.variance_delta = calloc(n, sizeof(float));
+		l.mean_delta = (float*) calloc(n, sizeof(float));
+		l.variance_delta = (float*) calloc(n, sizeof(float));
 
-		l.rolling_mean = calloc(n, sizeof(float));
-		l.rolling_variance = calloc(n, sizeof(float));
-		l.x = calloc(l.batch*l.outputs, sizeof(float));
-		l.x_norm = calloc(l.batch*l.outputs, sizeof(float));
+		l.rolling_mean = (float*) calloc(n, sizeof(float));
+		l.rolling_variance = (float*) calloc(n, sizeof(float));
+		l.x = (float*) calloc(l.batch*l.outputs, sizeof(float));
+		l.x_norm = (float*) calloc(l.batch*l.outputs, sizeof(float));
 	}
 	if (adam) {
 		l.adam = 1;
-		l.m = calloc(c*n*size*size, sizeof(float));
-		l.v = calloc(c*n*size*size, sizeof(float));
+		l.m = (float*) calloc(c*n*size*size, sizeof(float));
+		l.v = (float*) calloc(c*n*size*size, sizeof(float));
 	}
 
 #ifdef GPU
@@ -1186,7 +1192,7 @@ void draw_box_width(image a, int x1, int y1, int x2, int y2, int w, float r, flo
 image make_image(int w, int h, int c)
 {
 	image out = make_empty_image(w, h, c);
-	out.data = calloc(h*w*c, sizeof(float));
+	out.data = (float*) calloc(h*w*c, sizeof(float));
 	return out;
 }
 
@@ -1356,7 +1362,7 @@ image load_image_cv(char *filename, int channels)
 image copy_image(image p)
 {
 	image copy = p;
-	copy.data = calloc(p.h*p.w*p.c, sizeof(float));
+	copy.data = (float*) calloc(p.h*p.w*p.c, sizeof(float));
 	memcpy(copy.data, p.data, p.h*p.w*p.c * sizeof(float));
 	return copy;
 }
@@ -1426,7 +1432,7 @@ void save_image_png(image im, const char *name)
 {
 	char buff[256];
 	sprintf(buff, "%s.png", name);
-	unsigned char *data = calloc(im.w*im.h*im.c, sizeof(char));
+	unsigned char *data = (unsigned char*) calloc(im.w*im.h*im.c, sizeof(char));
 	int i, k;
 	for (k = 0; k < im.c; ++k) {
 		for (i = 0; i < im.w*im.h; ++i) {
@@ -1478,7 +1484,7 @@ typedef struct {
 // option_list.c
 void option_insert(list *l, char *key, char *val)
 {
-	kvp *p = malloc(sizeof(kvp));
+	kvp *p = (kvp*) malloc(sizeof(kvp));
 	p->key = key;
 	p->val = val;
 	p->used = 0;
@@ -1639,7 +1645,7 @@ list *read_cfg(char *filename)
 		strip(line);
 		switch (line[0]) {
 		case '[':
-			current = malloc(sizeof(section));
+			current = (section*) malloc(sizeof(section));
 			list_insert(sections, current);
 			current->options = make_list();
 			current->type = line;
@@ -1874,8 +1880,8 @@ route_layer parse_route(list *options, size_params params, network net)
 		if (l[i] == ',') ++n;
 	}
 
-	int *layers = calloc(n, sizeof(int));
-	int *sizes = calloc(n, sizeof(int));
+	int *layers = (int*) calloc(n, sizeof(int));
+	int *sizes = (int*) calloc(n, sizeof(int));
 	for (i = 0; i < n; ++i) {
 		int index = atoi(l);
 		l = strchr(l, ',') + 1;
@@ -2006,8 +2012,8 @@ void parse_net_options(list *options, network *net)
 		for (i = 0; i < len; ++i) {
 			if (l[i] == ',') ++n;
 		}
-		int *steps = calloc(n, sizeof(int));
-		float *scales = calloc(n, sizeof(float));
+		int *steps = (int*) calloc(n, sizeof(int));
+		float *scales = (float*) calloc(n, sizeof(float));
 		for (i = 0; i < n; ++i) {
 			int step = atoi(l);
 			float scale = atof(p);
@@ -2067,7 +2073,8 @@ network parse_network_cfg(char *filename)
 		fprintf(stderr, "%5d ", count);
 		s = (section *)n->val;
 		options = s->options;
-		layer l = { 0 };
+		layer l;
+		memset(&l, 0, sizeof(layer));
 		LAYER_TYPE lt = string_to_layer_type(s->type);
 		if (lt == CONVOLUTIONAL) {
 			l = parse_convolutional(options, params);
@@ -2119,7 +2126,7 @@ network parse_network_cfg(char *filename)
 			net.workspace = calloc(1, workspace_size);
 		}
 #else
-		net.workspace = calloc(1, workspace_size);
+		net.workspace = (float*) calloc(1, workspace_size);
 #endif
 	}
 	return net;

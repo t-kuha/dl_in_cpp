@@ -32,14 +32,14 @@ void draw_detections_cpu(image im, int num, float thresh, box *boxes, float **pr
 	int i;
 	// number of bounded boxes = (width_last_layer * height_last_layer * anchors)
 	for (i = 0; i < num; ++i) {
-		int class = max_index(probs[i], classes);
-		float prob = probs[i][class];
+		int cls = max_index(probs[i], classes);
+		float prob = probs[i][cls];
 		if (prob > thresh) {	// if (probability > threshold) the draw bonded box
 
 			int width = im.h * .012;
 
 			//printf("%s: %.0f%%\n", names[class], prob * 100);
-			int offset = class * 123457 % classes;
+			int offset = cls * 123457 % classes;
 			float red = get_color(2, offset, classes);
 			float green = get_color(1, offset, classes);
 			float blue = get_color(0, offset, classes);
@@ -58,7 +58,7 @@ void draw_detections_cpu(image im, int num, float thresh, box *boxes, float **pr
 			int bot = (b.y + b.h / 2.)*im.h;
 
 			printf("%s: %.0f%% \t x_center = %d, y_center = %d, width = %d, height = %d \n", 
-				names[class], prob * 100, (int)(b.x*im.w), (int)(b.y*im.h), (int)(b.w*im.w), (int)(b.h*im.h));
+				names[cls], prob * 100, (int)(b.x*im.w), (int)(b.y*im.h), (int)(b.w*im.w), (int)(b.h*im.h));
 
 			if (left < 0) left = 0;
 			if (right > im.w - 1) right = im.w - 1;
@@ -109,9 +109,9 @@ void test_detector_cpu(char **names, char *cfgfile, char *weightfile, char *file
 		image sized = resize_image(im, net.w, net.h);	// image.c
 		layer l = net.layers[net.n - 1];
 
-		box *boxes = calloc(l.w*l.h*l.n, sizeof(box));
-		float **probs = calloc(l.w*l.h*l.n, sizeof(float *));
-		for (j = 0; j < l.w*l.h*l.n; ++j) probs[j] = calloc(l.classes, sizeof(float *));
+		box *boxes = (box*) calloc(l.w*l.h*l.n, sizeof(box));
+		float **probs = (float**) calloc(l.w*l.h*l.n, sizeof(float *));
+		for (j = 0; j < l.w*l.h*l.n; ++j) probs[j] = (float*) calloc(l.classes, sizeof(float *));	// FIXME
 
 		float *X = sized.data;
 		time = clock();
@@ -424,13 +424,13 @@ void run_detector(int argc, char **argv)
 	char *filename = (argc > 6) ? argv[6] : 0;
 
 	// load object names
-	char **names = calloc(10000, sizeof(char *));
+	char **names = (char**) calloc(10000, sizeof(char *));
 	int obj_count = 0;
 	FILE* fp;
 	char buffer[255];
 	fp = fopen(obj_names, "r");
 	while (fgets(buffer, 255, (FILE*)fp)) {
-		names[obj_count] = calloc(strlen(buffer), sizeof(char));
+		names[obj_count] = (char*) calloc(strlen(buffer), sizeof(char));
 		strcpy(names[obj_count], buffer);
 		names[obj_count][strlen(buffer)-1] = 0;
 		++obj_count;

@@ -281,7 +281,7 @@ void forward_region_layer_cpu(const layer l, network_state state)
 		int layers = size*l.n;		// number of channels (where l.n = number of anchors)
 		int batch = l.batch;
 
-		float *swap = calloc(layer_size*layers*batch, sizeof(float));
+		float *swap = (float*) calloc(layer_size*layers*batch, sizeof(float));
 		int i, c, b;
 		// batch index
 		for (b = 0; b < batch; ++b) {
