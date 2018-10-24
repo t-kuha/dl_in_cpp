@@ -1,5 +1,5 @@
 #include "additionally.h"
-#include "gpu.h"
+//#include "gpu.h"
 
 #ifdef CUDNN
 #pragma comment(lib, "cudnn.lib")  
