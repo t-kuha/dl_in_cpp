@@ -19,3 +19,11 @@ $ ${CC} main.cpp \
 libtensorflow-lite.a -lpthread -ldl \
 -o linear.out
 ```
+
+
+***
+### Tips
+
+- For the list of default registered ops, see _tensorflow/contrib/lite/kernels/register.cc_
+
+- Pretrained model can be found at: https://www.tensorflow.org/lite/models
