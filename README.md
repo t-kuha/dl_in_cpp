@@ -1,5 +1,8 @@
 # dl_in_cpp
 
+- Deep learning framework in C++ (mostly inference)
+
+
 ### Caffe
 
 
@@ -10,4 +13,9 @@
 
 
 ***
-### Tensorflow
+### Tensorflow Lite
+
+- See _tflite_ directory
+
+    - Includes simple tflite inference & custom operator example
+
