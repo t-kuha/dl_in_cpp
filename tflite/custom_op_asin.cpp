@@ -113,7 +113,7 @@ int main(int argc, const char * argv[])
     for(int i = 0; i < output_size; i++){
         if (interpreter->tensor(output)->type == kTfLiteFloat32) {
             std::cout << "[" << i << "]:  " << 
-                interpreter->typed_tensor<float>(input)[0] << " -> " <<
+                interpreter->typed_tensor<float>(input)[i] << " -> " <<
                 interpreter->typed_output_tensor<float>(0)[i] << std::endl;
         }
     }
