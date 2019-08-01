@@ -2,20 +2,30 @@
 
 - Deep learning framework in C++ (mostly inference)
 
-
-### Caffe
-
-
 ***
-### Caffe2
-- __cpp_example__
-  - Forked from: https://github.com/zacario-li/caffe2_Cpp_example
 
+## caffe
 
-***
-### Tensorflow Lite
+- Get weight values from caffe model
 
-- See _tflite_ directory
+## caffe2
 
-    - Includes simple tflite inference & custom operator example
+- __cpp_example__: Forked from [https://github.com/zacario-li/caffe2_Cpp_example](https://github.com/zacario-li/caffe2_Cpp_example)
 
+## libtorch
+
+- __minimal__: Minimal example from [https://pytorch.org/cppdocs/installing.html](https://pytorch.org/cppdocs/installing.html#minimal-example)
+
+## tf
+
+- __tf_graph__: Get weight from TensorFlow model (*.pb) file
+
+## tflite
+
+- __custom-op__: Add custom operator (arcsin)
+
+- __run-model__: Inference using tflite model
+
+## other
+
+- __yolo2_light__: Forked from [https://github.com/AlexeyAB/yolo2_light](https://github.com/AlexeyAB/yolo2_light)
