@@ -1,0 +1,22 @@
+root@ultra96:~# ./test-libtorch.elf
+Training on CPU.
+Train Epoch: 1 [59584/60000] Loss: 0.2491
+Test set: Average loss: 0.2109 | Accuracy: 0.934
+Train Epoch: 2 [59584/60000] Loss: 0.1361
+Test set: Average loss: 0.1296 | Accuracy: 0.960
+Train Epoch: 3 [59584/60000] Loss: 0.1743
+Test set: Average loss: 0.1063 | Accuracy: 0.965
+Train Epoch: 4 [59584/60000] Loss: 0.1196
+Test set: Average loss: 0.0893 | Accuracy: 0.972
+Train Epoch: 5 [59584/60000] Loss: 0.1006
+Test set: Average loss: 0.0842 | Accuracy: 0.973
+Train Epoch: 6 [59584/60000] Loss: 0.0723
+Test set: Average loss: 0.0717 | Accuracy: 0.977
+Train Epoch: 7 [59584/60000] Loss: 0.0623
+Test set: Average loss: 0.0688 | Accuracy: 0.979
+Train Epoch: 8 [59584/60000] Loss: 0.0709
+Test set: Average loss: 0.0634 | Accuracy: 0.981
+Train Epoch: 9 [59584/60000] Loss: 0.0587
+Test set: Average loss: 0.0606 | Accuracy: 0.981
+Train Epoch: 10 [59584/60000] Loss: 0.0505
+Test set: Average loss: 0.0550 | Accuracy: 0.983
